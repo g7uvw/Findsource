@@ -24,7 +24,7 @@ using namespace std;
 #define nproj 27
 #define PEPPERTHRESHOLD 0.6
 
-vector<unsigned int> data;
+vector<uint16_t> data;
 vector<vector<double> > proj;
 
 vector<vector<float> > widtharray;				//500*27
