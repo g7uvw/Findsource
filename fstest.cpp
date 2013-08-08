@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define xdim 1064
+#define xdim 1020
 #define ydim 800
 #define framesize (xdim*ydim)
 #define offset (data.begin()+512)
@@ -92,8 +92,7 @@ int main(int argc, char* argv[])
 		cout<<"chomping projection "<<framenum+1 <<"of "<<nproj<<endl;
 		proj[framenum].assign (frameoffset,frameend);
 		cout<<"test byte from data frame: "<<proj[framenum][200]<<endl;
-	
-	}
+		}
 
 	//data.~vector();	//free up ram
 
