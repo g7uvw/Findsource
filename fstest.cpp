@@ -13,7 +13,13 @@ using namespace std;
 #define xdim 1064
 #define ydim 800
 #define framesize (xdim*ydim)
-#define offset 512
+#define offset (data.begin()+512)
+#define darkoffset (offset)
+#define darkend (darkoffset + framesize)
+#define lightoffset (offset+framesize)
+#define lightend (lightoffset+framesize)
+#define frameoffset (lightend+(framenum*framesize))
+#define frameend (frameoffset+framesize)
 #define range 500
 #define nproj 27
 #define PEPPERTHRESHOLD 0.6
@@ -51,7 +57,6 @@ int main(int argc, char* argv[])
     	edgearray[i].resize(2);
     }
 
-	
 
 
 	//unsigned int b;
@@ -65,27 +70,27 @@ int main(int argc, char* argv[])
 	cout<<"Opened a.mcd, file size: "<<length<<" bytes"<<endl;
 	
 	if (length) {
-		//datafile.seekg(512, ios::beg); //skip 512 bytes of header
-		//cout<<"SEEKed to end of header. Current position is :" <<datafile.tellg()<<endl;
 	
 	data.resize(length);
+	
 	//load whole file
 	datafile.seekg(0,std::ios_base::beg);
 	cout<<"loading whole datafile"<<endl;
 	datafile.read((char *) &data.front(),  length);
 	
 	cout<<"chomping darkframe"<<endl;
-	vector<double> dark(data.begin()+offset,data.begin()+offset+framesize);
+	vector<double> dark(darkoffset,darkend);
 	cout<<"test byte from dark frame: "<<dark[1000]<<endl;
+	
 	cout<<"chomping lightframe"<<endl;
-	vector<double> light(data.begin()+offset+framesize,data.begin()+offset+2*framesize);
-//	cout<<"test byte from light frame: "<<light[1000]<<endl;
+	vector<double> light(lightoffset,lightend);
+	cout<<"test byte from light frame: "<<light[1000]<<endl;
 
 	proj.resize(nproj);
 	for (int framenum=0;framenum<nproj;framenum++)
 		{
 		cout<<"chomping projection "<<framenum+1 <<"of "<<nproj<<endl;
-		proj[framenum].assign (data.begin()+offset+2*framesize+(framenum*framesize),data.begin()+offset+2*framesize+(framenum*framesize)+framesize);
+		proj[framenum].assign (frameoffset,frameend);
 		cout<<"test byte from data frame: "<<proj[framenum][200]<<endl;
 	
 	}
