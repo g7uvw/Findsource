@@ -22,6 +22,7 @@ using namespace std;
 #define frameend (frameoffset+framesize)
 #define linestart (linecounter*xdim)
 #define lineend (linestart + xdim)
+#define linepixel (y * xdim +x)
 #define range 500
 #define nproj 27
 #define PEPPERTHRESHOLD 0.8
@@ -29,8 +30,8 @@ using namespace std;
 vector<uint16_t> data;
 vector<vector<double> > proj;
 
-vector<vector<float> > widtharray;				//500*27
-vector<vector<float> > edgearray;				//500*2
+vector<vector<double> > widtharray;				//500*27
+vector<vector<double> > edgearray;				//500*2
 //vector<vector<float> > light;					//xdim*ydim
 //vector<vector<float> > dark;					//xdim*ydim
 //vector<vector<float>> proj;			
@@ -153,11 +154,48 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	//find edges
 	vector<double> edges;
+	edges.resize(2);
 	for (frame = 0; frame < nproj; frame ++)
 		{
+		int a = 0;
+		double h = 0;
 		unsigned int ystart = (ydim-range)/2;
 		unsigned int yend = ystart + range -1;
+		edges[0]=0;
+		edges[1]=0;
+		for (unsigned int y = ystart; y < yend; y++)
+			{
+			double x=1;
+			while (proj[frame][linepixel] > 0.5)
+				{
+				x++;
+				}
 
+			edges[0] += x;
+			h = 0.5 - proj[frame][linepixel]/(proj[frame][linepixel-1] - proj[frame][linepixel]);
+			edges[0] -= h;
+			
+			edgearray[a][0]=(x-h);
+
+			x +=10;	//make sure we're away from the edge before we look for the next edge
+
+			while (proj[frame][linepixel] < 0.5)
+				{
+				x++;
+				}
+			edges[1] += x;
+			h = 0.5 - proj[frame][linepixel]/(proj[frame][linepixel-1] - proj[frame][linepixel]);
+			edges[1] -= h;
+			
+			edgearray[a][1]=(x-h);
+			
+			a++;
+
+			edges[0] /= range;
+			edges[1] /= range;
+
+			cout <<"Edges at "<<edges[0]<<" and "<<edges[1]<<endl; 
+			}
 
 
 
