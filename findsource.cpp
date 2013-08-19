@@ -13,7 +13,7 @@ using namespace std;
 #define xdim 1020
 #define ydim 800
 #define framesize (xdim*ydim)
-#define offset (data.begin()+512)
+#define offset (data.begin()+256)
 #define darkoffset (offset)
 #define darkend (darkoffset + framesize)
 #define lightoffset (offset+framesize)
@@ -41,6 +41,7 @@ unsigned int frame,line, pixel,peppercount = 0;
 int _tmain(int argc, _TCHAR* argv[])
 	{
 
+cout<<sizeof(double)<<endl;
 
 	//resize the arrays to be large enough
 	//m * n is the size of the array
@@ -85,11 +86,16 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		cout<<"chomping darkframe"<<endl;
 		vector<double> dark(darkoffset,darkend);
-		cout<<"test byte from dark frame: "<<dark[1000]<<endl;
+
+		cout<<"test bytes from dark frame: "<<dark[759]<<dark[760]<<","<<dark[761]<<","<<dark[762]<<","<<dark[763]<<","<<dark[764]<<","<<dark[765]<<","<<dark[766]<<","<<dark[767]<<","<<dark[768]<<","<<dark[769]<<endl;
+		ofstream darkfileu("d:\\data\\darkframe.bin", ios::out | ios::binary);
+		darkfileu.write((char*)&*(dark.begin()),dark.size() * sizeof(double));
 
 		cout<<"chomping lightframe"<<endl;
 		vector<double> light(lightoffset,lightend);
 		cout<<"test byte from light frame: "<<light[1000]<<endl;
+		ofstream lightfileu("d:\\data\\lightframe.bin", ios::out | ios::binary);
+		lightfileu.write((char*)&*(light.begin()),light.size() * sizeof(double));
 
 		proj.resize(nproj);
 		for (int framenum=0;framenum<nproj;framenum++)
@@ -110,6 +116,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 			light[pix] -= dark[pix];
 			}
+		//ofstream lightfile("d:\\data\\lightframecorrected.bin", ios::out | ios::binary);
+		//lightfile.write((char*)&*(light.begin()),light.size() * sizeof(double));
+
 
 		for (frame = 0; frame < nproj; frame ++)
 			{
@@ -119,7 +128,16 @@ int _tmain(int argc, _TCHAR* argv[])
 				proj[frame][pix] -= dark[pix];
 				}
 			}
-
+		
+		//ofstream projections("d:\\data\\projections.bin", std::ofstream::binary);
+		//for(size_t i = 0; i < proj.size(); i++ )
+		//	{
+		//	if ( proj[i].size() > 0 )
+		//		{
+		//		//const char* projbuffer = static_cast<const char*>(&proj[i][0]);
+		//		projections.write((char*)&*proj[i].begin(), proj[i].size()*sizeof(double));
+		//		}
+		//	}
 
 
 
@@ -151,6 +169,16 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 
 		}
+
+	//ofstream depepprojections("d:\\data\\depepprojections.bin", std::ofstream::binary);
+	//	for(size_t i = 0; i < proj.size(); i++ )
+	//		{
+	//		if ( proj[i].size() > 0 )
+	//			{
+	//			//const char* projbuffer = static_cast<const char*>(&proj[i][0]);
+	//			depepprojections.write((char*)&*proj[i].begin(), proj[i].size()*sizeof(double));
+	//			}
+	//		}
 	
 	//find edges
 	vector<double> edges;
@@ -170,12 +198,14 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 				x++;
 				}
-
+			cout<<"x[0] = "<<x<<endl;
 			edges[0] += x;
 			h = 0.5 - proj[frame][linepixel]/(proj[frame][linepixel-1] - proj[frame][linepixel]);
 			edges[0] -= h;
 			
 			edgearray[a][0]=(x-h);
+			
+			//proj[frame][linepixel] = 254; //mark pixel
 
 			x +=10;	//make sure we're away from the edge before we look for the next edge
 
@@ -183,28 +213,36 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 				x++;
 				}
+			cout<<"x[1] = "<<x<<endl;
 			edges[1] += x;
 			h = 0.5 - proj[frame][linepixel]/(proj[frame][linepixel-1] - proj[frame][linepixel]);
 			edges[1] -= h;
 			
 			edgearray[a][1]=(x-h);
 			
+			//proj[frame][linepixel] = 254; //mark pixel
+
 			a++;
 
 			edges[0] /= range;
 			edges[1] /= range;
 
-			cout <<"Edges at "<<edges[0]<<" and "<<edges[1]<<endl; 
+			//cout <<"Edges at "<<edges[0]<<" and "<<edges[1]<<endl; 
 			}
-
-
-
-
-
 
 
 		}
 
+
+	//ofstream edgesfile("d:\\data\\edges.bin", std::ofstream::binary);
+	//	for(size_t i = 0; i < proj.size(); i++ )
+	//		{
+	//		if ( proj[i].size() > 0 )
+	//			{
+	//			//const char* projbuffer = static_cast<const char*>(&proj[i][0]);
+	//			edgesfile.write((char*)&*proj[i].begin(), proj[i].size()*sizeof(double));
+	//			}
+	//		}
 
 
 	//recover some RAM
